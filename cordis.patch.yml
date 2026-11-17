@@ -1,0 +1,80 @@
+# dsh-context-suite — one bundle, six rows on by default, two opt-in.
+#
+# Every row is independent: disable one by adding `disabled: true` to its
+# entry in your profile's own cordis.patch.yml (target it by `id`).
+#
+# The first two rows are one unit: `result-budget` drives DSH's own
+# tool-result pruner, which ships with DSH but is never invoked on its own.
+# DSH ships the pruner row (`tool-result-pruner`) but `dsh-web-app` sets
+# `disabled: true` on the host plane and `billion-context` turns off
+# `compaction-basic` (its only caller). Re-enable it explicitly here (`applyPatches`
+# merges keys shallowly, so omitting `disabled: false` leaves it disabled on
+# desktop) and override its budget; `result-budget` below is what invokes it.
+- id: tool-result-pruner
+  disabled: false
+  config:
+    thresholdChars: 8192
+    headChars: 4096
+    tailChars: 1024
+
+- insert:
+    - id: result-budget
+      name: 'dsh-context-suite/result-budget'
+      # 0 = prune every step. Set a token count to prune only under pressure.
+      config:
+        pressureThreshold: 0
+
+    # Warn before the next fold; announce the fold that just happened.
+    - id: context-reminder
+      name: 'dsh-context-suite/context-reminder'
+      config:
+        growthTokens: 35000
+        dropTokens: 8000
+
+    # Re-inject the skill catalog when a fold drops it from the surface.
+    - id: skill-catalog-guard
+      name: 'dsh-context-suite/skill-catalog-guard'
+
+    # Write a per-session digest and show the previous session's digest once.
+    - id: session-digest
+      name: 'dsh-context-suite/session-digest'
+
+    # Hide large MCP tool groups behind one loader tool.
+    # `groups` is empty by default: add one entry per MCP server prefix.
+    # Example for a 255-tool REA server:
+    #   groups:
+    #     - id: rea
+    #       prefix: 'mcp__rea__'
+    #       description: 'REA reverse-engineering tools'
+    - id: lazy-tools
+      name: 'dsh-context-suite/lazy-tools'
+      config:
+        toolName: load_tools
+        groups: []
+
+    # Pin the sampling temperature for one provider. No-op for other providers.
+    - id: sampling-default
+      name: 'dsh-context-suite/sampling-default'
+      config:
+        provider: local-ubuntu
+        temperature: 0.5
+
+    # --- opt-in: off by default -------------------------------------------
+    # List the notes written in the last 24h at the start of every turn.
+    # Overlaps AGENTS.md rule 7 and costs ~200 tokens per turn; enable when
+    # you keep several notes and want them all in view.
+    - id: note-index
+      name: 'dsh-context-suite/note-index'
+      disabled: true
+      config:
+        maxNotes: 3
+        maxAgeHours: 24
+
+    # Show the previous goal round's evidence at the start of the next round.
+    # Only fires on goal rounds; enable when you run multi-round goals.
+    - id: goal-audit
+      name: 'dsh-context-suite/goal-audit'
+      disabled: true
+      config:
+        maxPaths: 8
+        debug: false

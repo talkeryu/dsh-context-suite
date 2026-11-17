@@ -1,0 +1,54 @@
+{
+  "name": "dsh-context-suite",
+  "version": "0.1.5",
+  "private": false,
+  "type": "module",
+  "description": "Six context-hygiene plugins for DeepSeek Harness (plus two opt-in): prune tool results, warn before a fold, restore the skill catalog after a fold, digest sessions, lazy-load large MCP tool groups, and pin sampling temperature.",
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "context",
+    "compaction",
+    "plugin",
+    "bundle"
+  ],
+  "license": "MIT",
+  "exports": {
+    ".": "./lib/index.js",
+    "./context-reminder": "./lib/context-reminder.js",
+    "./note-index": "./lib/note-index.js",
+    "./lazy-tools": "./lib/lazy-tools.js",
+    "./result-budget": "./lib/result-budget.js",
+    "./skill-catalog-guard": "./lib/skill-catalog-guard.js",
+    "./session-digest": "./lib/session-digest.js",
+    "./goal-audit": "./lib/goal-audit.js",
+    "./sampling-default": "./lib/sampling-default.js"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "BENCHMARK.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "author": "talkeryu",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/talkeryu/dsh-context-suite.git"
+  },
+  "homepage": "https://github.com/talkeryu/dsh-context-suite#readme",
+  "bugs": {
+    "url": "https://github.com/talkeryu/dsh-context-suite/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}
